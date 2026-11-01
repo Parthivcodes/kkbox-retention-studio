@@ -18,6 +18,8 @@ The frontend uses a midnight blue, cyan, and violet identity. Its scroll choreog
 
 ## Quick start
 
+The hosted frontend at https://kkbox-retention-studio.vercel.app displays synthetic demo data unless it is connected to a running API. The API can be hosted separately with the small `backend/requirements-runtime.txt` set for demo serving; the full `backend/requirements.txt` is needed for training and Dagster.
+
 With Docker installed, run `docker compose up --build` and open http://localhost:3000. The API is at http://localhost:8000/docs and the Dagster asset UI is at http://localhost:3001. On first start, PostgreSQL is seeded with synthetic demo customers and predictions so the interface is usable immediately.
 
 For a frontend preview without Docker or a database, run `npm install` and `npm run dev` in `frontend`. It falls back to clearly labeled local synthetic data when the API is unavailable. For the full local stack, set `DATABASE_URL`, install `backend/requirements.txt`, run `python -m app.seed_demo` from `backend`, then `uvicorn app.main:app --reload`.
