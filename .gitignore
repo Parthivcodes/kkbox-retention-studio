@@ -1,0 +1,15 @@
+data/
+!data/.gitkeep
+__pycache__/
+*.pyc
+.venv/
+.env
+node_modules/
+.next/
+*.tsbuildinfo
+*.joblib
+mlruns/
+.local-pg/
+backend/models/
+tmp/
+output/

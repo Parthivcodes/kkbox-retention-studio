@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: retention
+      POSTGRES_USER: retention
+      POSTGRES_PASSWORD: retention
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U retention"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  api:
+    build: ./backend
+    image: retention-api:local
+    environment:
+      DATABASE_URL: postgresql+psycopg://retention:retention@db:5432/retention
+      DATA_DIR: /data/kkbox
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+      - modeldata:/app/models
+      - mlruns:/app/mlruns
+    depends_on:
+      db:
+        condition: service_healthy
+  orchestrator:
+    image: retention-api:local
+    command: ["dagster", "dev", "-m", "app.orchestration", "--host", "0.0.0.0", "--port", "3001"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://retention:retention@db:5432/retention
+      DATA_DIR: /data/kkbox
+      DAGSTER_HOME: /app/dagster-home
+      MLFLOW_TRACKING_URI: file:///app/mlruns
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./data:/data
+      - modeldata:/app/models
+      - mlruns:/app/mlruns
+      - dagsterdata:/app/dagster-home
+    depends_on:
+      db:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    environment:
+      API_INTERNAL_URL: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+volumes:
+  pgdata:
+  modeldata:
+  mlruns:
+  dagsterdata:
